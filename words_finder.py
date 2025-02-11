@@ -4,7 +4,7 @@ import re
 VOWELS = 'аеёиоөуүы'
 LONG_VOWELS = 'аа|оо|өө|ээ|уу|үү'
 CONSONANTS = 'бвгджзйклмнңпсртфхцчшщ'
-SYLLABLE = rf'[{CONSONANTS}]*({LONG_VOWELS}|[{VOWELS}])[{CONSONANTS}]'
+SYLLABLE = rf'([{CONSONANTS}]*({LONG_VOWELS}|[{VOWELS}])[{CONSONANTS}]*)?'
 
 
 words = []
@@ -19,7 +19,9 @@ def init_words():
 
 def non_empty_vowel(vowel):
     if vowel == '':
-        return rf'[{VOWELS}]'
+        return rf'({LONG_VOWELS}|[{VOWELS}])'
+    else:
+        vowel.replace('е', 'э').replace('ё', 'йо').replace('ю', 'йу').replace('я', 'йа')
     return vowel
 
 
@@ -29,10 +31,18 @@ def non_empty_consonant(consonant):
     return consonant
 
 
-def one_vowel(vowel):
+def one_vowel(vowel, headless=True, tailless=True):
     matches = []
     vowel = non_empty_vowel(vowel)
-    pattern = rf'[{CONSONANTS}]*{vowel}[{CONSONANTS}]*'
+    if headless:
+        head = rf''
+    else:
+        head = rf'{SYLLABLE}'
+    if tailless:
+        tail = rf''
+    else:
+        tail = rf'{SYLLABLE}'
+    pattern = rf'{head}[{CONSONANTS}]*{vowel}[{CONSONANTS}]*{tail}'
     for word, category in words:
         if re.fullmatch(pattern, word):
             matches.append([word, category])
@@ -53,8 +63,10 @@ def two_vowels(first_vowel, second_vowel, consonant='', headless=True, tailless=
     else:
         tail = rf'{SYLLABLE}'
     pattern = rf'{head}[{CONSONANTS}]*{first_vowel}{consonant}{second_vowel}[{CONSONANTS}]*{tail}'
+    # print(pattern)
     for word, category in words:
-        if re.fullmatch(pattern, word):
+        full_match = re.fullmatch(pattern, word)
+        if full_match:
             matches.append([word, category])
     return matches
 
@@ -85,7 +97,7 @@ def find_matches(vowels, consonants=(), headless=True, tailless=True, first_lett
     matches = []
     if len(vowels) == 1:
         vowel = vowels[0]
-        matches = one_vowel(vowel)
+        matches = one_vowel(vowel, headless, tailless)
     elif len(vowels) == 2:
         if len(consonants) < 1:
             consonants = ['']
@@ -128,8 +140,22 @@ def categorize_words(words_to_categorize):
 def main():
     init_words()
     # print(find_matches(['у'], first_letter='т'))
-    print(find_matches(['у', 'а', 'а'], ['б', 'с'], first_letter='т'))
+    matches = find_matches(['е', 'е'], ['р'], first_letter='к')
+    print(matches)
+    # matches = three_vowels('у', 'а', 'а', '')
+    # print(matches)
+    # print(find_matches(['у', 'а', 'а'], ['б', 'с'], first_letter='т'))
 
+    # print(re.fullmatch(r'[бвгджзйклмнңпсртфхцчшщ]*е[бвгджзйклмнңпсртфхцчшщ]+е[бвгджзйклмнңпсртфхцчшщ]*', 'керек'))
+
+
+def test():
+    init_words()
+    for pair in words:
+        word = pair[0]
+        if any(sub in word.lower() for sub in ["иа"]):
+            print(word)
 
 if __name__ == '__main__':
-    main()
+    test()
+    # main()

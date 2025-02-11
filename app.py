@@ -18,7 +18,7 @@ def matching_words():
     tailless = data['tailless']
     first_letter = data['first-letter']
     words = find_matches(vowels, consonants, headless, tailless, first_letter)
-    idioms = find_idioms(vowels, consonants, first_letter)
+    idioms = find_idioms(vowels, consonants, headless, tailless, first_letter)
     return {
         'words': words,
         'idioms': idioms
