@@ -1,7 +1,7 @@
 import csv
 import re
 
-VOWELS = 'аеёиоөуүы'
+VOWELS = 'аеёиоөуүыэ'
 LONG_VOWELS = 'аа|оо|өө|ээ|уу|үү'
 CONSONANTS = 'бвгджзйклмнңпсртфхцчшщ'
 SYLLABLE = rf'([{CONSONANTS}]*({LONG_VOWELS}|[{VOWELS}])[{CONSONANTS}]*)?'
